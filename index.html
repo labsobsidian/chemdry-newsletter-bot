@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter Bot — Chem-Dry of Richmond</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C0392B;
+    --red-dark: #922B21;
+    --red-light: #FADBD8;
+    --navy: #1A2340;
+    --navy-mid: #2C3E6A;
+    --cream: #FAF8F5;
+    --warm-gray: #F0EDE8;
+    --border: #E0DAD2;
+    --text: #1A1814;
+    --text-muted: #6B6560;
+    --text-light: #9E9A95;
+    --success: #1E8449;
+    --success-bg: #D5F5E3;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--navy);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-logo {
+    width: 32px;
+    height: 32px;
+    background: var(--red);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    color: white;
+    font-size: 16px;
+    font-weight: 400;
+  }
+  .header-title {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .header-sub {
+    color: rgba(255,255,255,0.45);
+    font-size: 12px;
+    font-weight: 300;
+  }
+  .header-badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Main Layout ── */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 24px 48px;
+  }
+
+  /* ── Config Bar ── */
+  .config-bar {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .config-bar.expanded {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .config-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .config-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .config-input {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .config-input:focus { border-color: var(--navy-mid); }
+  .config-input::placeholder { color: var(--text-light); }
+  .config-input[type="password"] { letter-spacing: 0.05em; }
+
+  /* ── Steps ── */
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 600px) { .steps { grid-template-columns: 1fr; } }
+
+  .step-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .step-card.active { border-color: var(--navy-mid); }
+  .step-card.done { border-color: var(--success); }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--warm-gray);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .step-card.active .step-num { background: var(--navy); color: white; }
+  .step-card.done .step-num { background: var(--success); color: white; }
+
+  .step-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Drop Zone ── */
+  .drop-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--navy-mid);
+    background: #EEF0F8;
+  }
+  .drop-zone.has-file {
+    border-color: var(--success);
+    background: var(--success-bg);
+    border-style: solid;
+  }
+  .drop-icon {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .drop-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .drop-filename {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--success);
+    margin-top: 4px;
+  }
+  #file-input { display: none; }
+
+  /* ── Context box ── */
+  .context-area {
+    width: 100%;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+  }
+  .context-area:focus { border-color: var(--navy-mid); }
+  .context-area::placeholder { color: var(--text-light); }
+
+  /* ── Generate Button ── */
+  .generate-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: white;
+    flex: 1;
+    justify-content: center;
+  }
+  .btn-primary:hover { background: var(--navy-mid); }
+  .btn-primary:disabled {
+    background: var(--warm-gray);
+    color: var(--text-light);
+    cursor: not-allowed;
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--warm-gray); }
+  .btn-danger {
+    background: var(--red);
+    color: white;
+  }
+  .btn-danger:hover { background: var(--red-dark); }
+
+  /* ── Spinner ── */
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .spinning .spinner { display: block; }
+  .spinning .btn-text { opacity: 0.7; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Output Panel ── */
+  .output-panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+  }
+  .output-panel.visible { display: block; }
+
+  .output-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--warm-gray);
+  }
+  .output-tab {
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .output-tab.active {
+    color: var(--navy);
+    border-bottom-color: var(--navy);
+    background: white;
+  }
+
+  .output-pane { display: none; padding: 20px; }
+  .output-pane.active { display: block; }
+
+  /* Subject */
+  .subject-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--warm-gray);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+  }
+  .subject-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  #subject-display {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+
+  /* Email preview */
+  .email-preview-wrapper {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f4f4f4;
+  }
+  .email-preview-bar {
+    background: var(--warm-gray);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 14px;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 6px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot-red { background: #FF5F56; }
+  .dot-yellow { background: #FFBD2E; }
+  .dot-green { background: #27C93F; }
+  #email-preview-frame {
+    width: 100%;
+    border: none;
+    min-height: 500px;
+    background: white;
+    display: block;
+  }
+
+  /* Raw HTML */
+  #raw-html-output {
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    background: var(--navy);
+    color: #A8D8A8;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  /* Deploy section */
+  .deploy-section { padding: 20px; }
+  .deploy-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .deploy-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .deploy-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .deploy-status {
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+    display: none;
+  }
+  .deploy-status.success {
+    background: var(--success-bg);
+    color: var(--success);
+    display: block;
+  }
+  .deploy-status.error {
+    background: var(--red-light);
+    color: var(--red-dark);
+    display: block;
+  }
+  .deploy-status.loading {
+    background: var(--warm-gray);
+    color: var(--text-muted);
+    display: block;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--navy);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transform: translateY(60px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    max-width: 300px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--red); }
+
+  /* ── Misc ── */
+  .section-divider {
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-light);
+    margin: 4px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+
+  .settings-toggle {
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: 0;
+  }
+  .settings-toggle:hover { color: var(--navy); }
+
+  .extracted-preview {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    max-height: 80px;
+    overflow-y: auto;
+    line-height: 1.5;
+    display: none;
+  }
+  .extracted-preview.visible { display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="header-logo">CD</div>
+    <div>
+      <div class="header-title">Newsletter Bot</div>
+      <div class="header-sub">Chem-Dry of Richmond</div>
+    </div>
+  </div>
+  <div class="header-badge">MARKETING TOOLS</div>
+</div>
+
+<div class="main">
+
+
+
+  <!-- Steps -->
+  <div class="steps">
+    <!-- Step 1: Drop file -->
+    <div class="step-card" id="step1-card">
+      <div class="step-num" id="step1-num">1</div>
+      <div class="step-title">Drop your offer or flyer</div>
+      <div class="step-desc">Upload a PDF, image, or paste text. The bot reads it and figures out the offer automatically.</div>
+
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="drop-icon">📄</div>
+        <div class="drop-text">Drop a PDF or image here<br><span style="color:var(--text-light)">or click to browse</span></div>
+      </div>
+      <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp" onchange="handleFileSelect(this)" />
+
+      <div class="drop-filename" id="file-name-display"></div>
+      <div class="extracted-preview" id="extracted-preview"></div>
+
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <span style="font-size:11px;color:var(--text-light)">or</span>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+      <textarea class="context-area" id="manual-text" style="margin-top:10px;" placeholder="Paste offer text directly... e.g. '25% off carpet cleaning this month, expires Oct 31, use code FALL25. Good for whole-home jobs over $150.'" rows="4"></textarea>
+    </div>
+
+    <!-- Step 2: Options -->
+    <div class="step-card" id="step2-card">
+      <div class="step-num" id="step2-num">2</div>
+      <div class="step-title">Customize the newsletter</div>
+      <div class="step-desc">Tell the bot what kind of email to write and add any extra context for Chem-Dry's voice.</div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <label class="config-label" style="display:block;margin-bottom:5px;">Email tone</label>
+          <select class="config-input" id="tone-select" style="width:100%;cursor:pointer;">
+            <option value="friendly and professional">Friendly & Professional</option>
+            <option value="warm and neighborly">Warm & Neighborly</option>
+            <option value="urgent and deal-focused">Urgent & Deal-Focused</option>
+            <option value="educational and trustworthy">Educational & Trustworthy</option>
+            <option value="seasonal and festive">Seasonal & Festive</option>
+          </select>
+        </div>
+        <div>
+          <label class="config-label" style="display:block;margin-bottom:5px;">Target audience</label>
+          <select class="config-input" id="audience-select" style="width:100%;cursor:pointer;">
+            <option value="existing customers in Richmond VA">Existing Customers</option>
+            <option value="new homeowners in Richmond VA">New Homeowners</option>
+            <option value="pet owners in Richmond VA">Pet Owners</option>
+            <option value="customers who haven't booked in 6+ months">Win-Back List</option>
+            <option value="all subscribers in Richmond VA">All Subscribers</option>
+          </select>
+        </div>
+        <div>
+          <label class="config-label" style="display:block;margin-bottom:5px;">Extra context <span style="color:var(--text-light);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <textarea class="context-area" id="extra-context" placeholder="e.g. Mention our 30-day guarantee. Include a CTA to book online at chemdryrichmond.com. Don't use the word 'clean' too many times." rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate -->
+  <div class="generate-bar">
+    <button class="btn btn-primary" id="generate-btn" onclick="generateNewsletter()">
+      <span class="spinner" id="spinner"></span>
+      <span class="btn-text" id="btn-text">✦ Generate Newsletter</span>
+    </button>
+    <button class="btn btn-secondary" onclick="resetAll()">Reset</button>
+  </div>
+
+  <!-- Output -->
+  <div class="output-panel" id="output-panel">
+    <div class="output-tabs">
+      <div class="output-tab active" onclick="switchTab('preview')">Preview</div>
+      <div class="output-tab" onclick="switchTab('html')">HTML</div>
+      <div class="output-tab" onclick="switchTab('deploy')">Deploy to GHL ›</div>
+    </div>
+
+    <div class="output-pane active" id="pane-preview">
+      <div class="subject-row">
+        <span class="subject-label">Subject</span>
+        <input type="text" id="subject-display" placeholder="Subject line will appear here..." />
+      </div>
+      <div class="email-preview-wrapper">
+        <div class="email-preview-bar">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span style="margin-left:8px;">Email Preview</span>
+        </div>
+        <iframe id="email-preview-frame" title="Email Preview" sandbox="allow-same-origin"></iframe>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-secondary" onclick="copyHtml()" style="flex:1;justify-content:center;">Copy HTML</button>
+        <button class="btn btn-secondary" onclick="copySubject()" style="flex:1;justify-content:center;">Copy Subject</button>
+        <button class="btn btn-primary" onclick="switchTab('deploy')" style="flex:1;justify-content:center;">Deploy to GHL →</button>
+      </div>
+    </div>
+
+    <div class="output-pane" id="pane-html">
+      <pre id="raw-html-output"></pre>
+      <button class="btn btn-secondary" onclick="copyHtml()" style="margin-top:12px;">Copy HTML</button>
+    </div>
+
+    <div class="output-pane" id="pane-deploy">
+      <div class="deploy-section" style="padding:0;padding-top:4px;">
+        <div class="deploy-card">
+          <div class="deploy-title">
+            <span style="font-size:18px;">📤</span>
+            Save as Email Template in GHL
+          </div>
+          <div class="deploy-desc">
+            Creates a new Email Template under Marketing → Emails → Templates in your sub-account. It will appear as a draft you can then turn into a campaign and send.
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <label class="config-label" style="white-space:nowrap;">Template name</label>
+            <input type="text" id="template-name" class="config-input" style="flex:1;" placeholder="Newsletter — Fall Carpet Special" />
+          </div>
+          <button class="btn btn-danger" onclick="deployToGHL()" id="deploy-btn" style="width:100%;justify-content:center;">
+            <span class="spinner" id="deploy-spinner"></span>
+            <span id="deploy-btn-text">Push Draft to GHL Marketing</span>
+          </button>
+          <div class="deploy-status" id="deploy-status"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-light);line-height:1.6;padding:0 2px;">
+          After pushing, go to <strong>Marketing → Emails → Templates</strong> in your GHL sub-account to find the draft. From there you can edit, add contacts, and send.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let uploadedFileData = null;
+let uploadedFileMime = null;
+let generatedHtml = '';
+let generatedSubject = '';
+
+// Keys live in Vercel environment variables — no client-side key handling needed
+
+// ── File handling ──
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+});
+
+function handleFileSelect(input) {
+  if (input.files[0]) processFile(input.files[0]);
+}
+
+function processFile(file) {
+  const allowed = ['application/pdf','image/jpeg','image/png','image/gif','image/webp'];
+  if (!allowed.includes(file.type)) {
+    showToast('Please upload a PDF or image file.', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedFileData = e.target.result.split(',')[1];
+    uploadedFileMime = file.type;
+    dropZone.classList.add('has-file');
+    document.getElementById('file-name-display').textContent = '✓ ' + file.name;
+
+    const preview = document.getElementById('extracted-preview');
+    preview.textContent = 'File loaded: ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB). The bot will read this when you generate.';
+    preview.classList.add('visible');
+
+    document.getElementById('step1-card').classList.add('active');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Generate ──
+async function generateNewsletter() {
+  const manualText = document.getElementById('manual-text').value.trim();
+  if (!uploadedFileData && !manualText) {
+    showToast('Please upload a file or paste your offer text.', 'error');
+    return;
+  }
+
+  const tone = document.getElementById('tone-select').value;
+  const audience = document.getElementById('audience-select').value;
+  const extra = document.getElementById('extra-context').value.trim();
+
+  setGenerating(true);
+
+  const systemPrompt = `You are a professional email copywriter for Chem-Dry of Richmond, a premium carpet and upholstery cleaning franchise in Richmond, Virginia. Chem-Dry uses a proprietary hot carbonating extraction process that uses 80% less water than steam cleaning and dries in 1-2 hours. They are trusted, family-friendly, and health-focused.
+
+Your job: read the offer or flyer provided and write a compelling newsletter email that will get opens and bookings. 
+
+RULES:
+- Write a punchy subject line (max 60 chars). Avoid spam words.
+- Write a full HTML email body. Use inline styles only (no <style> tags, no external CSS). 
+- The email must look professional and branded: use Chem-Dry's brand colors (#C0392B red, #1A2340 navy, #FAF8F5 cream/off-white).
+- Structure: short greeting → hook sentence → offer details → 1-2 trust/benefit points → clear CTA button → footer with unsubscribe placeholder.
+- CTA button should link to https://chemdryrichmond.com/booking (use this URL).
+- Keep it scannable: short paragraphs, 1-2 bullet points max, no walls of text.
+- Footer: "Chem-Dry of Richmond | Richmond, VA | To unsubscribe, click here"
+- Tone: ${tone}
+- Audience: ${audience}
+${extra ? '- Extra instructions: ' + extra : ''}
+
+Respond ONLY with valid JSON in this exact format (no markdown, no backticks):
+{"subject": "...", "html": "..."}
+
+The html field must be a complete, standalone HTML email body string with all inline styles. Escape any quotes properly for JSON.`;
+
+  const userContent = [];
+
+  if (uploadedFileData) {
+    if (uploadedFileMime === 'application/pdf') {
+      userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: uploadedFileData }});
+    } else {
+      userContent.push({ type: 'image', source: { type: 'base64', media_type: uploadedFileMime, data: uploadedFileData }});
+    }
+  }
+
+  userContent.push({ type: 'text', text: manualText ? 'Here is the offer: ' + manualText : 'Read the attached file and extract the offer details, then write the newsletter email.' });
+
+  try {
+    const response = await fetch('/api/claude', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userContent }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API error ' + response.status);
+    }
+
+    const data = await response.json();
+    const rawText = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+
+    let parsed;
+    try {
+      const clean = rawText.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      const subjectMatch = rawText.match(/"subject"\s*:\s*"([^"]+)"/);
+      const htmlMatch = rawText.match(/"html"\s*:\s*"([\s\S]+?)"\s*\}/);
+      if (subjectMatch && htmlMatch) {
+        parsed = { subject: subjectMatch[1], html: htmlMatch[1].replace(/\\n/g,'\n').replace(/\\"/g,'"') };
+      } else {
+        throw new Error('Could not parse the AI response. Try again.');
+      }
+    }
+
+    generatedSubject = parsed.subject;
+    generatedHtml = parsed.html;
+
+    document.getElementById('subject-display').value = generatedSubject;
+    document.getElementById('raw-html-output').textContent = generatedHtml;
+
+    const frame = document.getElementById('email-preview-frame');
+    frame.srcdoc = generatedHtml;
+
+    // Auto-set template name
+    const tName = document.getElementById('template-name');
+    if (!tName.value) tName.value = 'Newsletter — ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+    document.getElementById('output-panel').classList.add('visible');
+    document.getElementById('step1-card').classList.remove('active');
+    document.getElementById('step1-card').classList.add('done');
+    document.getElementById('step1-num').textContent = '✓';
+    document.getElementById('step2-card').classList.add('done');
+    document.getElementById('step2-num').textContent = '✓';
+
+    showToast('Newsletter generated!', 'success');
+    document.getElementById('output-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(err) {
+    showToast(err.message, 'error');
+  }
+
+  setGenerating(false);
+}
+
+function setGenerating(on) {
+  const btn = document.getElementById('generate-btn');
+  const spinner = document.getElementById('spinner');
+  const text = document.getElementById('btn-text');
+  if (on) {
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    text.textContent = 'Generating...';
+  } else {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    text.textContent = '✦ Generate Newsletter';
+  }
+}
+
+// ── Tabs ──
+function switchTab(name) {
+  document.querySelectorAll('.output-tab').forEach((t,i) => {
+    const names = ['preview','html','deploy'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.output-pane').forEach((p,i) => {
+    const names = ['preview','html','deploy'];
+    p.classList.toggle('active', names[i] === name);
+  });
+}
+
+// ── Deploy to GHL ──
+async function deployToGHL() {
+  if (!generatedHtml) { showToast('Generate a newsletter first.', 'error'); return; }
+
+  const templateName = document.getElementById('template-name').value.trim() || 'Newsletter Draft';
+  const subject = document.getElementById('subject-display').value.trim() || generatedSubject;
+
+  const statusEl = document.getElementById('deploy-status');
+  const deployBtn = document.getElementById('deploy-btn');
+  const deploySpinner = document.getElementById('deploy-spinner');
+  const deployBtnText = document.getElementById('deploy-btn-text');
+
+  deployBtn.disabled = true;
+  deploySpinner.style.display = 'block';
+  deployBtnText.textContent = 'Pushing to GHL...';
+  statusEl.className = 'deploy-status loading';
+  statusEl.textContent = 'Connecting to GoHighLevel...';
+
+  try {
+    const payload = {
+      name: templateName,
+      type: 'html',
+      html: generatedHtml,
+      subject: subject,
+      previewText: subject
+    };
+
+    const resp = await fetch('/api/ghl', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await resp.json();
+
+    if (resp.ok) {
+      statusEl.className = 'deploy-status success';
+      statusEl.innerHTML = '✓ Template created! Go to <strong>Marketing → Emails → Templates</strong> in your GHL account to find "<em>' + templateName + '</em>" and launch it as a campaign.';
+      showToast('Draft pushed to GHL!', 'success');
+    } else {
+      throw new Error(result.message || result.msg || ('GHL error ' + resp.status));
+    }
+
+  } catch(err) {
+    statusEl.className = 'deploy-status error';
+    statusEl.innerHTML = '✗ ' + err.message + '<br><small>Check your Location API token and try again. Make sure it has email/template permissions.</small>';
+    showToast('GHL deploy failed: ' + err.message, 'error');
+  }
+
+  deployBtn.disabled = false;
+  deploySpinner.style.display = 'none';
+  deployBtnText.textContent = 'Push Draft to GHL Marketing';
+}
+
+// ── Utilities ──
+function copyHtml() {
+  if (!generatedHtml) return;
+  navigator.clipboard.writeText(generatedHtml).then(() => showToast('HTML copied!', 'success'));
+}
+
+function copySubject() {
+  const s = document.getElementById('subject-display').value;
+  if (!s) return;
+  navigator.clipboard.writeText(s).then(() => showToast('Subject copied!', 'success'));
+}
+
+function resetAll() {
+  uploadedFileData = null;
+  uploadedFileMime = null;
+  generatedHtml = '';
+  generatedSubject = '';
+  document.getElementById('drop-zone').classList.remove('has-file');
+  document.getElementById('file-name-display').textContent = '';
+  document.getElementById('extracted-preview').classList.remove('visible');
+  document.getElementById('manual-text').value = '';
+  document.getElementById('extra-context').value = '';
+  document.getElementById('output-panel').classList.remove('visible');
+  document.getElementById('step1-card').classList.remove('active','done');
+  document.getElementById('step2-card').classList.remove('active','done');
+  document.getElementById('step1-num').textContent = '1';
+  document.getElementById('step2-num').textContent = '2';
+  document.getElementById('deploy-status').className = 'deploy-status';
+  document.getElementById('file-input').value = '';
+  switchTab('preview');
+}
+
+function showToast(msg, type = 'default') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+</script>
+</body>
+</html>
